@@ -1,6 +1,6 @@
 import React, {useState, useRef} from 'react';
 import {View, TextInput, Text, Alert,  Platform, TouchableHighlight, TouchableWithoutFeedback, KeyboardAvoidingView, Keyboard, ScrollView} from 'react-native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import PhoneInput from "react-native-phone-number-input";
 import { setUsers } from '../redux/actions/usersActions';
 import styles from '../components/Style';
@@ -8,6 +8,7 @@ import styles from '../components/Style';
 const SignUp = props => {
   
   const dispatch = useDispatch();
+  const users = useSelector(state => state.chatuser.users);
 
   const {navigation} = props;
   const [name, onChangeName] = useState('');
@@ -36,12 +37,22 @@ const SignUp = props => {
       Alert.alert('Invalid Password', 'Password must be of minimum eight characters, at least one letter, one number and one special character');
     else 
     {
-      dispatch(setUsers({ name: name, phoneNumber: phno, password: pswd, isLogin: false }));
-      Alert.alert(
-        'Successful Sign Up',
-        'Your account was created successfully',
-      );
-      navigate();
+      const user = users.find(user => user.phoneNumber === phno);
+        if(user)
+        {
+          Alert.alert(
+            'Phone Number Taken',
+            'This phone number is already associated with another Chatterbox account, please try again with a different number',
+          );
+        }
+        else{
+          dispatch(setUsers({ name: name, phoneNumber: phno, password: pswd, isLogin: false }));
+          Alert.alert(
+            'Successful Sign Up',
+            'Your account was created successfully',
+          );
+          navigate();
+        }
     }
   } 
 
@@ -49,8 +60,7 @@ const SignUp = props => {
     <>
       <View style={styles.container}>
         <Text style={styles.title}>SIGN UP</Text>
-        <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <KeyboardAvoidingView>
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                       <View>
                         <View style={styles.inputValues}>
@@ -73,7 +83,7 @@ const SignUp = props => {
                               onChangeFormattedText={(text) => {
                                 onChangePhno(text);
                               }}
-                              withShadow
+                              withDarkTheme={true}
                           />
                         </View>
                         <View style={styles.inputValues}>

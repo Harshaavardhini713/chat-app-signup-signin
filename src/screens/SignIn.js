@@ -16,11 +16,8 @@ const SignIn = (props) => {
 
     const phoneInput = useRef(null);
 
-    const navigate1 = () => {
+    const navigate = () => {
         navigation.navigate('SignUp');
-      }
-    const navigate2 = () => {
-        navigation.navigate('Home');
       }
 
     const login = () => {
@@ -42,8 +39,7 @@ const SignIn = (props) => {
             if(user.password === pswd)
             {
                 dispatch(setLogin(user));
-                Alert.alert('Successful Sign In');
-                navigate2();
+                Alert.alert('Successful Sign In', 'You have successfully signed in');
             } 
             else 
             { 
@@ -76,7 +72,7 @@ const SignIn = (props) => {
                               onChangeFormattedText={(text) => {
                                 onChangePhno(text);
                               }}
-                              withShadow
+                              withDarkTheme={true}
                           />
                         </View>
                         <View style={styles.inputValues}>
@@ -98,7 +94,7 @@ const SignIn = (props) => {
                         </TouchableHighlight>
                         </View>
                         <View style={styles.navigate}>
-                            <Text style={styles.navigateText} onPress={navigate1}>New here?  Sign Up</Text>
+                            <Text style={styles.navigateText} onPress={navigate}>New here?  Sign Up</Text>
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
