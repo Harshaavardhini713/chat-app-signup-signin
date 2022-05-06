@@ -1,14 +1,14 @@
 import React, {useState, useRef} from 'react';
 import {View, TextInput, Text, Alert, Platform, TouchableHighlight, TouchableWithoutFeedback, KeyboardAvoidingView, Keyboard} from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import PhoneInput from "react-native-phone-number-input";
-import { setLogin } from '../redux/actions/usersActions';
+import { setLogin, setUsers } from '../redux/actions/usersActions';
+import instance from '../config/axiosConfig';
 import styles from '../components/Style';
 
 const SignIn = (props) => {
 
     const dispatch = useDispatch();
-    const users = useSelector(state => state.chatuser.users);
 
     const {navigation} = props;
     const [phno, onChangePhno] = useState('');
@@ -19,6 +19,51 @@ const SignIn = (props) => {
     const navigate = () => {
         navigation.navigate('SignUp');
       }
+
+    const userSignIn = async () => {
+      console.log("in signin")
+      try{
+            const params = JSON.stringify({
+              phone: phno,
+              password: pswd,
+            });
+            const response = await instance.post('users/auth', params);
+            if(response.status === 201 || response.status === 200)
+            {
+              console.log(`User Signed In: ${JSON.stringify(response.data)}`);
+              const profile = await instance.get('users/profile');
+              if(profile)
+              {
+                const id = profile.data[0]._id;
+                const name = profile.data[0].name;
+                const avatar = profile.data[0].avatar;
+                const uid = profile.data[0].uid;
+                dispatch(setUsers({id: id, uid: uid, name: name, phone: phno, password: pswd, avatar: avatar}));
+                dispatch(setLogin());
+                Alert.alert('Successful Sign In', 'You have successfully signed in');
+              }
+              else
+              {
+                Alert.alert('Error while Sign In', 'There was an error while signing you in, please try again');
+              }          
+            }
+            else
+            {
+              console.log(`User couldn't be signed in: ${JSON.stringify(response.data)}`);
+              Alert.alert(
+                "User couldn't be signed in",
+                JSON.stringify(response.data),
+                );
+            }
+      }
+      catch(error){
+          console.error(error.response.data.message)
+          Alert.alert(
+            'Error',
+             error.response.data.message,
+          );
+      }
+    } 
 
     const login = () => {
 
@@ -33,23 +78,7 @@ const SignIn = (props) => {
         Alert.alert('Invalid Password', 'Password must be of minimum eight characters, at least one letter, one number and one special character');
       else 
       {
-        const user = users.find(user => user.phoneNumber === phno);
-        if(user)
-        {
-            if(user.password === pswd)
-            {
-                dispatch(setLogin(user));
-                Alert.alert('Successful Sign In', 'You have successfully signed in');
-            } 
-            else 
-            { 
-                Alert.alert('Error', 'Wrong password');
-            }
-        }
-        else 
-        {
-            Alert.alert('Error', 'User not found');
-        }        
+        userSignIn(); 
       }
     };
     

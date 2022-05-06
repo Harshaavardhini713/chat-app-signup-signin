@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { NavigationContainer } from '@react-navigation/native';
@@ -24,56 +24,63 @@ const StartUpStackNavigator = props => {
       <Stack.Screen name="SignIn" component={SignIn} />
     </Stack.Navigator>
   );
-};
+}
 
-// const MainTabNavigator = props => {
+const MainTabNavigator = props => {
 
-//   return (
-//     <MainTab.Navigator
-//       initialRouteName="Chats"
-//       tabBarOptions={{
-//         activeTintColor: '#fff',
-//         style: {
-//           backgroundColor: Colors[colorScheme].tint,
-//         },
-//         indicatorStyle: {
-//           backgroundColor: Colors[colorScheme].background,
-//           height: 4,
-//         },
-//         labelStyle: {
-//           fontWeight: 'bold'
-//         },
-//         showIcon: true,
-//       }}>
-//       <MainTab.Screen
-//         name="Camera"
-//         component={TabOneNavigator}
-//         options={{
-//           tabBarIcon: ({ color }) => <Fontisto name="camera" color={color} size={18} />,
-//           tabBarLabel: () => null
-//         }}
-//       />
-//       <MainTab.Screen
-//         name="Chats"
-//         component={ChatsScreen}
-//       />
-//       <MainTab.Screen
-//         name="Status"
-//         component={TabTwoNavigator}
-//       />
-//       <MainTab.Screen
-//         name="Calls"
-//         component={TabTwoNavigator}
-//       />
-//     </MainTab.Navigator>
-//   );
-// }
+  return (
+    <MainTab.Navigator
+      initialRouteName="Personal Chats" screenOptions={{
+          "tabBarActiveTintColor": "#fff",
+          "tabBarShowIcon": true,
+          "tabBarLabelStyle": {
+            "fontWeight": "bold"
+          },
+          "tabBarIndicatorStyle": {
+            "backgroundColor": "#fff",
+            "height": 4
+          },
+          "tabBarStyle": {
+            "backgroundColor": "#B983FF"
+          }
+      }}>
+      <MainTab.Screen name="Personal Chats" component={TabOneNavigator} />
+      <MainTab.Screen name="Group Chats" component={TabTwoNavigator}/>
+    </MainTab.Navigator>
+  );
+}
+
+const TabOneStack = createNativeStackNavigator();
+
+function TabOneNavigator() {
+  return (
+    <TabOneStack.Navigator screenOptions={{headerShown: false}}>
+      <TabOneStack.Screen
+        name="TabOneScreen"
+        component={Home}
+      />
+    </TabOneStack.Navigator>
+  );
+}
+
+const TabTwoStack = createNativeStackNavigator();
+
+function TabTwoNavigator() {
+  return (
+    <TabTwoStack.Navigator screenOptions={{headerShown: false}}>
+      <TabTwoStack.Screen
+        name="TabTwoScreen"
+        component={Home2}
+      />
+    </TabTwoStack.Navigator>
+  );
+}
 
 
 const ChatStackNavigator = props => {
   return (
-    <Stack.Navigator screenOptions={{
-      headerShown: true,
+    <Stack.Navigator  screenOptions={{
+     headerShown: true,
       headerStyle: {
         backgroundColor: "#B983FF",
       },
@@ -83,7 +90,7 @@ const ChatStackNavigator = props => {
         fontWeight:"bold",
       }
       }}>
-      <Stack.Screen name="Home" component={Home} 
+      <Stack.Screen name="Home" component={MainTabNavigator} 
        options={{ 
          title:"ChatterBox",
          headerRight: () => (
@@ -104,13 +111,13 @@ const ChatStackNavigator = props => {
 
 const AppNavigator = () => {
 
-  const users = useSelector(state => state.chatuser.users);
-  const user = users.find(user => user.isLogin === true);
+  const user = useSelector(state => state.chatuser.isLogin);
+  console.log(user);
 
   return (
     <NavigationContainer>
         {
-          (user === undefined) ?
+          !user ?
           <StartUpStackNavigator /> :
           <ChatStackNavigator />
         }

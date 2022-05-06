@@ -1,15 +1,13 @@
 import { ActionTypes } from "../constants/action-types";
 
 const initialState = {
-    users : [
-        {
-            id: 1,
-            name: '',
-            phoneNumber:'',
-            password: '',
-            isLogin: false,
-        },
-    ],
+    id: '',
+    uid: '',
+    name: '',
+    phone:'',
+    password: '',
+    avatar: '',
+    isLogin: false,
 };
 
 export const userReducer = (state = initialState, {type, payload}) => {
@@ -17,44 +15,22 @@ export const userReducer = (state = initialState, {type, payload}) => {
     switch (type) {
 
         case ActionTypes.SET_USER:
+            console.log('in set user');
             console.log(payload);
-            return { ...state, users: [...state.users, payload] };
+            return { ...state, id:payload.id, uid:payload.uid, name:payload.name,
+                 phone:payload.phone, password:payload.password, avatar:payload.avatar};
 
         case ActionTypes.SET_LOGIN:
-            // console.log('in set login');
-            return { ...state, users: state.users.map(user => {
-                if(user.phoneNumber === payload.phoneNumber){
-                    console.log({...user,isLogin: true});
-                    return {
-                        ...user,
-                        isLogin: true,
-                    }
-                }
-                return user;
-            })};
-
+            console.log('in set login');
+            return { ...state, isLogin: true}
+        
         case ActionTypes.SET_LOGOUT:
-            // console.log("in set logout");
-            return { ...state, users: state.users.map(user => {
-                if(user.phoneNumber === payload.phoneNumber){
-                    console.log({...user,isLogin: false});
-                    return {
-                        ...user,
-                        isLogin: false
-                    }
-                }
-                return user;
-            })};
+            console.log("in set logout");
+            return { ...state, isLogin: false }
+               
         case ActionTypes.SET_NAME:
-            return { ...state, users: state.users.map(user => {
-                if(user.phoneNumber === payload.user.phoneNumber){
-                    return {
-                        ...user,
-                        name: payload.name
-                    }
-                }
-                return user;
-            })};
+            return { ...state, name: payload.name }
+              
         default:
             return state;
     }

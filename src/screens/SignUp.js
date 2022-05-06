@@ -1,24 +1,62 @@
 import React, {useState, useRef} from 'react';
 import {View, TextInput, Text, Alert,  Platform, TouchableHighlight, TouchableWithoutFeedback, KeyboardAvoidingView, Keyboard, ScrollView} from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
 import PhoneInput from "react-native-phone-number-input";
-import { setUsers } from '../redux/actions/usersActions';
+import instance from '../config/axiosConfig';
 import styles from '../components/Style';
 
 const SignUp = props => {
-  
-  const dispatch = useDispatch();
-  const users = useSelector(state => state.chatuser.users);
 
   const {navigation} = props;
+  const navigate = () => {
+    navigation.navigate('SignIn');
+  }
   const [name, onChangeName] = useState('');
   const [pswd, onChangePswd] = useState('');
   const [phno, onChangePhno] = useState('');
 
   const phoneInput = useRef(null);
 
-  const navigate = () => {
-    navigation.navigate('SignIn');
+  const userSignUp = async () => {
+    console.log("in signup")
+    try{
+      const params = JSON.stringify({
+        name: name,
+        phone: phno,
+        password: pswd,
+      });
+      const response = await instance.post('users/create', params);
+      if(response.status === 201 || response.status === 200)
+      {
+        console.log(`User created: ${JSON.stringify(response.data)}`);
+        Alert.alert(
+        'Successful Sign Up',
+        'Your account was created successfully', 
+        );
+        navigate();
+      }
+      else
+      {
+        console.log(`User not created: ${JSON.stringify(response.data)}`);
+        Alert.alert(
+          'User not created',
+          JSON.stringify(response.data),
+          );
+      }
+    }
+    catch(error){
+      const err = error.response.data.message;
+      console.log(error.response.data.message)
+      if(err.includes("E11000 duplicate key error collection"))
+      Alert.alert(
+        'Phone Number Taken',
+        'This phone number is already associated with another Chatterbox account, please try again with a different number',
+      );
+      else
+      Alert.alert(
+        'Error',
+        error.response.data.message,
+      );
+    }
   }
 
   const signUpAlert = () => {
@@ -37,22 +75,7 @@ const SignUp = props => {
       Alert.alert('Invalid Password', 'Password must be of minimum eight characters, at least one letter, one number and one special character');
     else 
     {
-      const user = users.find(user => user.phoneNumber === phno);
-        if(user)
-        {
-          Alert.alert(
-            'Phone Number Taken',
-            'This phone number is already associated with another Chatterbox account, please try again with a different number',
-          );
-        }
-        else{
-          dispatch(setUsers({ name: name, phoneNumber: phno, password: pswd, isLogin: false }));
-          Alert.alert(
-            'Successful Sign Up',
-            'Your account was created successfully',
-          );
-          navigate();
-        }
+      userSignUp();
     }
   } 
 
